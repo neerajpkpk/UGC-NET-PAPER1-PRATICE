@@ -1,0 +1,29 @@
+{% extends 'practice/base.html' %}
+
+{% block title %}UGC NET Paper 1 Practice{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="hero-text">
+    <span class="eyebrow">Practice smarter</span>
+    <h1>UGC NET Paper 1 Practice</h1>
+  </div>
+</section>
+
+<section class="subject-grid">
+  {% for item in subjects %}
+    {% with subject=item.object %}
+      <article class="subject-card">
+        <div class="subject-header-row">
+          <div class="subject-icon">{{ subject.icon }}</div>
+          <span class="subject-count">{{ item.question_count }} Q</span>
+        </div>
+        <div class="subject-content">
+          <h3>{{ subject.name }}</h3>
+        </div>
+        <a href="{% url 'subject_detail' subject.slug %}" class="primary-btn">Open</a>
+      </article>
+    {% endwith %}
+  {% endfor %}
+</section>
+{% endblock %}

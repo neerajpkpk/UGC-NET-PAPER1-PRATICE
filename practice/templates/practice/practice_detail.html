@@ -1,0 +1,35 @@
+{% extends 'practice/base.html' %}
+
+{% block title %}{{ subject.name }} | Practice {{ practice_number }}{% endblock %}
+
+{% block content %}
+<section class="practice-panel">
+  <div class="practice-header-row">
+    <div>
+      <span class="eyebrow">UGC NET Paper 1</span>
+      <h1>{{ subject.name }}</h1>
+      <p>Practice {{ practice_number }}</p>
+    </div>
+    <a href="{% url 'subject_detail' subject.slug %}" class="secondary-btn">Back to Subject</a>
+  </div>
+
+  <div class="progress-wrap">
+    <div id="question-counter" class="question-counter">Question 1 / {{ total_questions }}</div>
+    <div class="progress-bar">
+      <span id="progress-fill" class="progress-fill"></span>
+    </div>
+  </div>
+
+  <div id="question-card" class="question-card"></div>
+
+  <div class="practice-actions">
+    <button id="prev-btn" class="secondary-btn" type="button">Previous</button>
+    <button id="skip-btn" class="secondary-btn" type="button">Skip</button>
+    <button id="next-btn" class="primary-btn" type="button">Next</button>
+  </div>
+
+  <div id="result-card" class="result-card hidden"></div>
+</section>
+
+{{ questions_json|json_script:"questions-data" }}
+{% endblock %}
