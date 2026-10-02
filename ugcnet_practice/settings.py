@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import secrets
 from pathlib import Path
+from urllib.parse import parse_qsl, urlparse
 
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -77,24 +78,25 @@ WSGI_APPLICATION = 'ugcnet_practice.wsgi.application'
 
 
 # Database
-# PostgreSQL is configured for production use. For quick local development, SQLite is used when
-# PostgreSQL environment variables are not provided.
-DATABASES = {}
-POSTGRES_DB = os.environ.get("POSTGRES_DB_NAME")
-if POSTGRES_DB:
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB_NAME", "ugcnet"),
-        "USER": os.environ.get("POSTGRES_DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("POSTGRES_DB_PASSWORD", "postgres"),
-        "HOST": os.environ.get("POSTGRES_DB_HOST", "localhost"),
-        "PORT": os.environ.get("POSTGRES_DB_PORT", "5432"),
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    raise ImproperlyConfigured("DATABASE_URL must be set to the Neon PostgreSQL connection URL.")
+
+postgres_url = urlparse(database_url)
+if postgres_url.scheme not in {"postgres", "postgresql"} or not postgres_url.hostname or not postgres_url.path.strip("/"):
+    raise ImproperlyConfigured("DATABASE_URL must be a valid PostgreSQL connection URL.")
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': postgres_url.path.lstrip('/'),
+        'USER': postgres_url.username,
+        'PASSWORD': postgres_url.password,
+        'HOST': postgres_url.hostname,
+        'PORT': postgres_url.port or 5432,
+        'OPTIONS': dict(parse_qsl(postgres_url.query)),
     }
-else:
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+}
 
 
 # Password validation

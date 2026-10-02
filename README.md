@@ -5,10 +5,8 @@ A Django practice platform for UGC NET Paper 1. Subjects and questions are store
 ## Current Project Status
 
 - Django 5.1 project with the `practice` app.
-- Ten UGC NET Paper 1 subjects are present in the local database.
-- At the last check (2026-10-02), the local SQLite database had two Data Interpretation questions and one Teaching Aptitude question. Other subjects had none. Local database contents are not included in Git; check the admin for current records.
-- Temporary test questions used to verify table and explanation display were removed.
-- Django's `manage.py check` passed after the latest changes.
+- The app requires PostgreSQL configured by `DATABASE_URL`; there is no SQLite fallback.
+- The local `.env` is private and is not part of the repository. Each developer or deployment environment must supply its own configuration.
 - The admin link is hidden from the public navigation; the admin remains available directly at `/admin/`.
 
 ## Features Implemented
@@ -26,30 +24,54 @@ A Django practice platform for UGC NET Paper 1. Subjects and questions are store
 From the project folder:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+# Edit .env and set DATABASE_URL to the Neon connection URL.
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py migrate
+.\.venv\Scripts\python.exe manage.py createsuperuser
+.\.venv\Scripts\python.exe manage.py runserver
 ```
 
-Open the site at `http://127.0.0.1:8000/` and the admin at `http://127.0.0.1:8000/admin/`. If the virtual environment already exists, activate it and skip the first command. If PowerShell blocks activation, run the project's Python executable directly, for example `\.venv\Scripts\python.exe manage.py check`.
-
-To verify the project after changes:
+If the virtual environment already exists, skip its creation. These commands use its Python directly, so activation is not required.
 
 ```powershell
-python manage.py check
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py runserver
 ```
+
+Open the site at `http://127.0.0.1:8000/` and the admin at `http://127.0.0.1:8000/admin/`.
 
 ## Database Configuration
 
-- Local development uses SQLite in `db.sqlite3` when `POSTGRES_DB_NAME` is not set.
-- If `POSTGRES_DB_NAME` is set, Django uses PostgreSQL with the `POSTGRES_DB_USER`, `POSTGRES_DB_PASSWORD`, `POSTGRES_DB_HOST`, and `POSTGRES_DB_PORT` variables.
-- `DJANGO_ALLOWED_HOSTS` is a comma-separated list of hostnames. The local default is `localhost,127.0.0.1`; set the production domain through the hosting provider's environment settings.
-- The configured database is selected when Django starts. If expected questions are missing, first confirm which database configuration is active.
-- PostgreSQL requires installing a compatible psycopg driver. `requirements.txt` includes Django and `python-dotenv`; the PostgreSQL driver entry is currently commented out.
-- Keep real database passwords and `DJANGO_SECRET_KEY` in a local, untracked `.env`; do not commit secrets.
+- `DATABASE_URL` must be a PostgreSQL connection URL. The app stops with a configuration error if it is missing or invalid; it does not create or fall back to a local SQLite database.
+- Use the Neon connection URL for local development and deployment. Keep it, its password, and `DJANGO_SECRET_KEY` in the untracked `.env` locally or in the hosting provider's secret environment variables. Never commit or share these values.
+- Set `DJANGO_DEBUG=True` only for local development and `False` in deployment.
+- `DJANGO_ALLOWED_HOSTS` is a comma-separated list. Locally it defaults to `localhost,127.0.0.1`; in deployment, set it to the Render service hostname and any custom domain.
+- The PostgreSQL driver (`psycopg`) is included in `requirements.txt`.
+
+### Example local `.env`
+
+```env
+DJANGO_SECRET_KEY=your-secret-key
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
+```
+
+## Deployment Status: Render with Neon
+
+Neon remains the database; Render would host the Django web application. This repository is **not yet ready for a production Render deployment**: it does not include a production WSGI server such as Gunicorn or production static-file serving/configuration. Do not use Django's development `runserver` as the production start command.
+
+Before deploying, add and verify the production server and static-file configuration. Then create a Render **Web Service** connected to this GitHub repository, set its build and start commands to match the configured production setup, and add these environment variables in Render:
+
+- `DATABASE_URL`: Neon PostgreSQL connection URL, entered as a secret environment variable.
+- `DJANGO_SECRET_KEY`: a unique, private production secret.
+- `DJANGO_DEBUG`: `False`.
+- `DJANGO_ALLOWED_HOSTS`: the Render service hostname, such as `your-service.onrender.com`; include a custom domain if configured.
+
+After deployment, verify the homepage and `/admin/`. Apply database migrations to Neon only after reviewing the migration plan. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
 
 ## Adding Real Questions
 
@@ -90,13 +112,7 @@ For PYQs, enter the exam date and year, then select First Shift or Second Shift 
 - `practice/templates/practice/`: shared layout and page templates.
 - `practice/static/practice/app.js`: question rendering and practice interactions, including safe formatted prompt content.
 - `practice/static/practice/styles.css`: responsive layout, question table, text wrapping, and explanation formatting.
-- `ugcnet_practice/settings.py`: SQLite/PostgreSQL selection and Django settings.
-
-## PDF Import Notes / Next Work
-
-- The two PDFs currently in the workspace are for UGC NET December 2025, 31 December, Shift 1, Subject 058 Law. The answer-key PDF contains answer IDs, but the question-paper PDF extracted as a candidate response sheet with placeholder options `1, 2, 3, 4`; it does not contain usable question statements and options. They are not Paper 1 questions, so they have not been imported.
-- For future PYQ imports, use a complete readable question paper and its matching final answer key. Extract/organize questions by Paper 1 subject, solve and explain each, compare against the key, flag uncertain or mismatching answers, then add verified records through admin. Do not invent missing question text/options from an answer key.
-- The Data Interpretation table question entered for display checking should be checked in admin for its Question type, PYQ year, correct answer, and explanation before treating it as verified PYQ content.
+- `ugcnet_practice/settings.py`: required PostgreSQL configuration and Django settings.
 
 ## Design Notes
 
@@ -106,19 +122,4 @@ For PYQs, enter the exam date and year, then select First Shift or Second Shift 
 
 ## GitHub Repository
 
-The project folder should have its own Git repository; do not run Git commands from the parent `C:\Users\neera` repository. `.gitignore` excludes `.env`, SQLite databases, virtual environments, generated files, and PDFs. Review that file before adding any other local material.
-
-Create an empty GitHub repository (do not initialize it with a README), then open a terminal in this project folder and run:
-
-```powershell
-git init
-git branch -M main
-git status --short
-git add -A
-git status --short
-git commit -m "Initial UGC NET practice platform"
-git remote add origin https://github.com/neerajpkpk/UGC-NET-PAPER1-PRATICE.git
-git push -u origin main
-```
-
-Before committing, confirm the staged list does not contain `.env`, `db.sqlite3`, `.venv`, question PDFs, or other private data. If Git reports that `origin` already exists, use `git remote set-url origin <repository-url>` instead of adding it again. Never paste GitHub passwords or access tokens into chat or source files; authenticate with Git Credential Manager or GitHub's browser sign-in.
+`.gitignore` excludes `.env`, SQLite files, virtual environments, generated files, and PDFs. Before pushing changes, check `git status` and make sure `.env`, database credentials, local data, and private files are not staged. Never put secrets in source files or commit messages.
