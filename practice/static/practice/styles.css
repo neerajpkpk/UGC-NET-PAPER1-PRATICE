@@ -45,15 +45,17 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(144, 164, 255, 0.25);
+  background: #ffffff;
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 18px 24px;
   box-shadow: var(--shadow);
-  position: sticky;
-  top: 12px;
-  z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1360px, calc(100% - 40px));
+  z-index: 100;
 }
 
 .brand {
@@ -75,7 +77,7 @@ a {
 }
 
 .main-content {
-  padding-top: 28px;
+  padding-top: 88px;
 }
 
 .hero-section {
@@ -566,6 +568,14 @@ a {
 
   .page-shell {
     padding: 14px;
+  }
+
+  .topbar {
+    width: calc(100% - 28px);
+  }
+
+  .main-content {
+    padding-top: 112px;
   }
 
   .hero-section,
