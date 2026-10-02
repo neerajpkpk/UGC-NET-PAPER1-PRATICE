@@ -62,16 +62,21 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
 
 ## Deployment Status: Render with Neon
 
-Neon remains the database; Render would host the Django web application. This repository is **not yet ready for a production Render deployment**: it does not include a production WSGI server such as Gunicorn or production static-file serving/configuration. Do not use Django's development `runserver` as the production start command.
+Neon remains the database; Render hosts the Django web application. The project includes Gunicorn as its production WSGI server and WhiteNoise for static files. Do not use Django's development `runserver` as the production start command.
 
-Before deploying, add and verify the production server and static-file configuration. Then create a Render **Web Service** connected to this GitHub repository, set its build and start commands to match the configured production setup, and add these environment variables in Render:
+Create a Render **Web Service** connected to this GitHub repository and configure:
+
+- **Build command:** `pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate`
+- **Start command:** `gunicorn ugcnet_practice.wsgi:application`
+
+Add these environment variables in Render:
 
 - `DATABASE_URL`: Neon PostgreSQL connection URL, entered as a secret environment variable.
 - `DJANGO_SECRET_KEY`: a unique, private production secret.
 - `DJANGO_DEBUG`: `False`.
 - `DJANGO_ALLOWED_HOSTS`: the Render service hostname, such as `your-service.onrender.com`; include a custom domain if configured.
 
-After deployment, verify the homepage and `/admin/`. Apply database migrations to Neon only after reviewing the migration plan. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
+The build command applies Django migrations to Neon on each deployment; review and commit intended migrations before deploying. After deployment, verify the homepage and `/admin/`. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
 
 ## Adding Real Questions
 
@@ -112,7 +117,7 @@ For PYQs, enter the exam date and year, then select First Shift or Second Shift 
 - `practice/templates/practice/`: shared layout and page templates.
 - `practice/static/practice/app.js`: question rendering and practice interactions, including safe formatted prompt content.
 - `practice/static/practice/styles.css`: responsive layout, question table, text wrapping, and explanation formatting.
-- `ugcnet_practice/settings.py`: required PostgreSQL configuration and Django settings.
+- `ugcnet_practice/settings.py`: required PostgreSQL configuration, production security, and static-file settings.
 
 ## Design Notes
 
