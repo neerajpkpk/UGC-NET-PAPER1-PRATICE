@@ -62,7 +62,7 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require
 
 ## Deployment Status: Render with Neon
 
-Neon remains the database; Render hosts the Django web application. The project includes Gunicorn as its production WSGI server and WhiteNoise for static files. Do not use Django's development `runserver` as the production start command.
+Neon remains the database; Render hosts the Django web application. The project includes Gunicorn as its production WSGI server and WhiteNoise for static files. `.python-version` pins Render to Python 3.13.4, which is compatible with the pinned Django 5.1 release; do not override it with Python 3.14. Do not use Django's development `runserver` as the production start command.
 
 Create a Render **Web Service** connected to this GitHub repository and configure:
 
