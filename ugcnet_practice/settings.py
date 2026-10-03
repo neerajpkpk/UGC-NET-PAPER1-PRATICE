@@ -90,6 +90,7 @@ DATABASES = {
         ssl_require=not DEBUG,
     )
 }
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 if DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
     raise ImproperlyConfigured("DATABASE_URL must be a valid PostgreSQL connection URL.")
 
