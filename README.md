@@ -79,6 +79,15 @@ Add these environment variables in Render:
 
 The build command applies Django migrations to Neon on each deployment; review and commit intended migrations before deploying. After deployment, verify the homepage and `/admin/`. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
 
+## Search Engine Indexing and SEO
+
+- `/robots.txt` allows public pages and points crawlers to `/sitemap.xml`; it disallows the admin and health-check paths.
+- `/sitemap.xml` lists the homepage and subject/practice pages that currently have questions. Empty subject pages are marked `noindex` until question content is added.
+- Public pages provide a canonical URL, a page-specific title and description, and Open Graph metadata. These changes help crawlers and link previews understand the pages; they do not guarantee rankings or indexing.
+- For Google indexing, add the deployed HTTPS URL as a **URL-prefix property** in [Google Search Console](https://search.google.com/search-console/), verify ownership using its HTML-tag method, and submit `https://your-service.onrender.com/sitemap.xml`. Replace the example hostname with the live Render hostname. Use URL Inspection to request indexing for the homepage and populated subject pages.
+- Search autocomplete checked on 2026-10-03 suggested phrases such as “UGC NET Paper 1 mock test”, “UGC NET Paper 1 practice questions”, “UGC NET Paper 1 practice test online”, “UGC NET Paper 1 mock test with answers free”, and subject-specific searches for teaching aptitude, research aptitude, and logical reasoning. These are qualitative suggestions, not measured search volumes or ranking forecasts. The app should only target claims such as free, Hindi, PDF, PYQ, or full mock test if that content or feature is actually available.
+- Add original questions with correct answers and clear explanations before expecting subject pages to compete for search traffic. Track impressions and queries in Search Console, then prioritize topics where the site has useful, substantial content. No SEO change can guarantee Google indexing or recommendations by AI tools.
+
 ### Health Check and UptimeRobot
 
 `/health/` returns the plain-text response `ok` without querying PostgreSQL. It is intended for uptime checks, so it does not validate database availability.

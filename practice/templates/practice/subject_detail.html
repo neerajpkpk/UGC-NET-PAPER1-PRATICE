@@ -1,6 +1,6 @@
 {% extends 'practice/base.html' %}
 
-{% block title %}{{ subject.name }} | Practice Sessions{% endblock %}
+{% block robots %}{% if total_questions %}index,follow{% else %}noindex,follow{% endif %}{% endblock %}
 
 {% block content %}
 <section class="subject-page-card">
@@ -14,6 +14,12 @@
       <strong>{{ total_questions }}</strong>
     </div>
   </div>
+
+  <p>
+    Practise {{ subject.name }} questions for UGC NET Paper 1. There are
+    {{ total_questions }} questions currently available, arranged into
+    sessions of up to 50 questions each.
+  </p>
 
   <div class="practice-grid">
     {% for practice in practice_cards %}

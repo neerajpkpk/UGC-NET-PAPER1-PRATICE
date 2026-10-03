@@ -1,11 +1,24 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 
 from .models import Subject
 
 
 def health(request):
     return HttpResponse("ok")
+
+
+def robots_txt(request):
+    sitemap_url = request.build_absolute_uri(reverse("sitemap"))
+    return HttpResponse(
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        "Disallow: /health/\n"
+        f"Sitemap: {sitemap_url}\n",
+        content_type="text/plain",
+    )
 
 
 def home(request):
@@ -18,7 +31,19 @@ def home(request):
                 "question_count": subject.total_questions,
             }
         )
-    return render(request, "practice/home.html", {"subjects": subject_cards})
+    return render(
+        request,
+        "practice/home.html",
+        {
+            "subjects": subject_cards,
+            "page_title": "UGC NET Paper 1 Online Practice Questions",
+            "page_description": (
+                "Practise UGC NET Paper 1 online with subject-wise questions. "
+                "Browse available topics and start a practice session with "
+                "questions, answers and explanations."
+            ),
+        },
+    )
 
 
 def subject_detail(request, slug):
@@ -28,6 +53,12 @@ def subject_detail(request, slug):
 
     practice_cards = subject.get_practice_cards()
     total_questions = subject.total_questions
+    page_title = f"UGC NET {subject.name} Practice Questions"
+    page_description = (
+        f"Practise {subject.name} questions for UGC NET Paper 1. "
+        f"There are currently {total_questions} questions available in "
+        "subject-wise practice sessions."
+    )
 
     return render(
         request,
@@ -36,6 +67,8 @@ def subject_detail(request, slug):
             "subject": subject,
             "practice_cards": practice_cards,
             "total_questions": total_questions,
+            "page_title": page_title,
+            "page_description": page_description,
         },
     )
 
@@ -79,5 +112,15 @@ def practice_detail(request, slug, practice_number):
             "question_payload": question_payload,
             "questions_json": question_payload,
             "total_questions": len(question_payload),
+            "page_title": (
+                f"UGC NET {subject.name} Practice Questions "
+                f"- Practice {practice_number}"
+            ),
+            "page_description": (
+                f"Practise {len(question_payload)} UGC NET Paper 1 "
+                f"{subject.name} questions in Practice {practice_number}. "
+                "Review your answers and explanations as you work through "
+                "the session."
+            ),
         },
     )
