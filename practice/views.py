@@ -96,7 +96,7 @@ def practice_detail(request, slug, practice_number):
                 "correct_answer": question.correct_answer,
                 "explanation": question.explanation,
                 "question_type": question.question_type,
-                "exam_date": question.exam_date.isoformat() if question.exam_date else None,
+                "exam_date": question.exam_date,
                 "pyq_year": question.pyq_year,
                 "shift": question.shift,
                 "difficulty": question.difficulty,

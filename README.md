@@ -144,7 +144,7 @@ Example:
 </table>
 ```
 
-For explanations, paste plain text. Newlines and blank lines are preserved; HTML is not required.
+Explanations accept plain text or the same supported HTML formatting as question text, including paragraphs, lists, emphasis, and tables. Plain-text newlines and blank lines are preserved. Unsupported HTML tags and attributes are not retained by the browser renderer.
 
 For PYQs, enter the exam date and year, then select First Shift or Second Shift in the admin. Date and shift are optional for questions where they are unknown or not applicable. The practice badge shows the date, year, and selected shift.
 

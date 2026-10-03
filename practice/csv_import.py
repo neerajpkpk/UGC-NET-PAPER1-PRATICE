@@ -9,8 +9,6 @@ MAX_CSV_SIZE = 5 * 1024 * 1024
 MAX_CSV_ROWS = 500
 
 REQUIRED_COLUMNS = {
-    "subject",
-    "question_order",
     "question_text",
     "option_a",
     "option_b",
@@ -19,6 +17,9 @@ REQUIRED_COLUMNS = {
     "correct_answer",
 }
 OPTIONAL_COLUMNS = {
+    "subject",
+    "subject_id",
+    "question_order",
     "explanation",
     "question_type",
     "difficulty",
@@ -33,7 +34,14 @@ class QuestionCSVImportError(Exception):
     pass
 
 
-def parse_questions_csv(uploaded_file, subjects_by_name):
+def parse_questions_csv(
+    uploaded_file,
+    subjects_by_name,
+    subjects_by_id=None,
+    *,
+    selected_subject=None,
+    starting_order=1,
+):
     content = uploaded_file.read(MAX_CSV_SIZE + 1)
     if len(content) > MAX_CSV_SIZE:
         raise QuestionCSVImportError("CSV file must be 5 MB or smaller.")
@@ -51,7 +59,23 @@ def parse_questions_csv(uploaded_file, subjects_by_name):
     if len(headers) != len(set(headers)):
         raise QuestionCSVImportError("CSV contains duplicate column names.")
 
+    subject_columns = {"subject", "subject_id"} & set(headers)
+    if selected_subject is not None:
+        if subject_columns or "question_order" in headers:
+            raise QuestionCSVImportError(
+                "When a subject is selected in the form, omit subject, "
+                "subject_id, and question_order columns from the CSV."
+            )
+        if starting_order < 1:
+            raise QuestionCSVImportError("Starting question order must be positive.")
+    elif len(subject_columns) != 1:
+        raise QuestionCSVImportError(
+            "CSV must contain exactly one subject column: subject or subject_id."
+        )
+
     missing_columns = REQUIRED_COLUMNS - set(headers)
+    if selected_subject is None and "question_order" not in headers:
+        missing_columns.add("question_order")
     if missing_columns:
         raise QuestionCSVImportError(
             "CSV is missing required columns: " + ", ".join(sorted(missing_columns))
@@ -66,6 +90,7 @@ def parse_questions_csv(uploaded_file, subjects_by_name):
     questions = []
     errors = []
     seen_orders = {}
+    next_question_order = starting_order
 
     try:
         for row_number, raw_row in enumerate(reader, start=2):
@@ -89,20 +114,37 @@ def parse_questions_csv(uploaded_file, subjects_by_name):
             if not any(row.values()):
                 continue
 
-            subject_name = row["subject"]
-            subject = subjects_by_name.get(subject_name)
+            if selected_subject is not None:
+                subject = selected_subject
+                question_order = next_question_order
+                next_question_order += 1
+            else:
+                subject = None
+            if selected_subject is None and "subject" in subject_columns:
+                subject_name = row["subject"]
+                subject = subjects_by_name.get(subject_name)
+                subject_description = f"subject {subject_name!r}"
+            elif selected_subject is None:
+                subject_id = row["subject_id"]
+                try:
+                    subject = (subjects_by_id or {}).get(int(subject_id))
+                except ValueError:
+                    subject = None
+                subject_description = f"subject_id {subject_id!r}"
             if subject is None:
                 errors.append(
-                    f"Row {row_number}: unknown subject {subject_name!r}; "
-                    "use the exact name from the admin."
+                    f"Row {row_number}: unknown {subject_description}; "
+                    "use an existing subject from the admin."
                 )
                 continue
 
-            try:
-                question_order = int(row["question_order"])
-            except ValueError:
-                errors.append(f"Row {row_number}: question_order must be a whole number.")
-                continue
+            subject_name = subject.name
+            if selected_subject is None:
+                try:
+                    question_order = int(row["question_order"])
+                except ValueError:
+                    errors.append(f"Row {row_number}: question_order must be a whole number.")
+                    continue
 
             duplicate_key = (subject.pk, question_order)
             if duplicate_key in seen_orders:
@@ -131,7 +173,7 @@ def parse_questions_csv(uploaded_file, subjects_by_name):
                 explanation=row.get("explanation", ""),
                 question_type=row.get("question_type") or "Practice",
                 difficulty=row.get("difficulty") or "Medium",
-                exam_date=row.get("exam_date") or None,
+                exam_date=row.get("exam_date", ""),
                 pyq_year=pyq_year,
                 shift=row.get("shift", ""),
             )

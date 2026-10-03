@@ -141,6 +141,43 @@ class QuestionCSVImportTests(SimpleTestCase):
         with self.assertRaisesRegex(QuestionCSVImportError, "unknown subject"):
             parse_questions_csv(uploaded, {})
 
+    @patch("practice.csv_import.Question.full_clean")
+    def test_import_parser_accepts_subject_id_column(self, full_clean):
+        subject = Subject(id=7, name="Teaching Aptitude")
+        content = (
+            "question_order,question_text,option_a,option_b,option_c,option_d,"
+            "correct_answer,subject_id\n"
+            "2,Question,A,B,C,D,A,7\n"
+        ).encode()
+        uploaded = SimpleUploadedFile("questions.csv", content, content_type="text/csv")
+
+        questions = parse_questions_csv(uploaded, {}, {subject.pk: subject})
+
+        self.assertEqual(len(questions), 1)
+        self.assertEqual(questions[0].subject, subject)
+        full_clean.assert_called_once()
+
+    @patch("practice.csv_import.Question.full_clean")
+    def test_import_parser_assigns_order_for_selected_subject(self, full_clean):
+        subject = Subject(id=7, name="Teaching Aptitude")
+        content = (
+            "question_text,option_a,option_b,option_c,option_d,correct_answer\n"
+            "First question,A,B,C,D,A\n"
+            "Second question,A,B,C,D,B\n"
+        ).encode()
+        uploaded = SimpleUploadedFile("questions.csv", content, content_type="text/csv")
+
+        questions = parse_questions_csv(
+            uploaded,
+            {},
+            selected_subject=subject,
+            starting_order=12,
+        )
+
+        self.assertEqual([question.question_order for question in questions], [12, 13])
+        self.assertEqual([question.subject for question in questions], [subject, subject])
+        self.assertEqual(full_clean.call_count, 2)
+
     def test_import_parser_rejects_duplicate_question_orders(self):
         subject = Subject(id=7, name="Teaching Aptitude")
         content = (

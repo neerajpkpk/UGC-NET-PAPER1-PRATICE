@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
@@ -98,36 +99,19 @@ class QuestionAdmin(admin.ModelAdmin):
         import_errors = []
         if request.method == "POST" and form.is_valid():
             try:
-                subjects_by_name = {
-                    subject.name: subject for subject in Subject.objects.all()
-                }
-                questions = parse_questions_csv(
-                    form.cleaned_data["csv_file"],
-                    subjects_by_name,
-                )
-
-                existing_orders = set(
-                    Question.objects.filter(
-                        subject_id__in={question.subject_id for question in questions},
-                        question_order__in={
-                            question.question_order for question in questions
-                        },
-                    ).values_list("subject_id", "question_order")
-                )
-                conflicts = [
-                    f"{question.subject.name} question_order "
-                    f"{question.question_order}"
-                    for question in questions
-                    if (question.subject_id, question.question_order) in existing_orders
-                ]
-                if conflicts:
-                    raise QuestionCSVImportError(
-                        "These subject/order pairs already exist: "
-                        + ", ".join(conflicts)
-                        + ". Change question_order values before importing."
-                    )
-
                 with transaction.atomic():
+                    subject = Subject.objects.select_for_update().get(
+                        pk=form.cleaned_data["subject"].pk
+                    )
+                    last_order = Question.objects.filter(subject=subject).aggregate(
+                        maximum=Max("question_order")
+                    )["maximum"] or 0
+                    questions = parse_questions_csv(
+                        form.cleaned_data["csv_file"],
+                        {},
+                        selected_subject=subject,
+                        starting_order=last_order + 1,
+                    )
                     Question.objects.bulk_create(questions)
             except QuestionCSVImportError as error:
                 import_errors = str(error).splitlines()
@@ -161,8 +145,6 @@ class QuestionAdmin(admin.ModelAdmin):
         writer = csv.writer(output)
         writer.writerow(
             [
-                "subject",
-                "question_order",
                 "question_text",
                 "option_a",
                 "option_b",

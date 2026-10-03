@@ -31,9 +31,20 @@ class QuestionForm(forms.ModelForm):
 
 
 class QuestionCSVImportForm(forms.Form):
+    subject = forms.ModelChoiceField(
+        label="Subject",
+        queryset=Subject.objects.order_by("name"),
+        help_text=(
+            "All questions in this CSV will be added to this subject. "
+            "Question order is assigned automatically."
+        ),
+    )
     csv_file = forms.FileField(
         label="CSV file",
-        help_text="UTF-8 CSV, one question per row, up to 500 questions and 5 MB.",
+        help_text=(
+            "UTF-8 CSV, one question per row, up to 500 questions and 5 MB. "
+            "Do not include subject or question_order columns."
+        ),
     )
 
     def clean_csv_file(self):

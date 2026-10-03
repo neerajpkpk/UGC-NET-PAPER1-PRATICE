@@ -20,13 +20,32 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const optionLetters = ['A', 'B', 'C', 'D'];
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    })[character]);
+  }
+
   const safeQuestionTags = new Set([
     'p', 'br', 'strong', 'b', 'em', 'i', 'u', 'sup', 'sub',
     'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
   ]);
 
   function createSafeQuestionContent(markup) {
-    const parsed = new DOMParser().parseFromString(markup, 'text/html');
+    let sourceMarkup = String(markup);
+    const escapedSafeTag = /&lt;\/?(?:p|br|strong|b|em|i|u|sup|sub|ul|ol|li|table|thead|tbody|tfoot|tr|th|td)(?:\s[^&]*?)?&gt;/i;
+    if (escapedSafeTag.test(sourceMarkup)) {
+      const decoder = document.createElement('textarea');
+      decoder.innerHTML = sourceMarkup;
+      sourceMarkup = decoder.value;
+    }
+
+    const parsed = new DOMParser().parseFromString(sourceMarkup, 'text/html');
     const fragment = document.createDocumentFragment();
 
     function copyNode(source, target) {
@@ -170,10 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const selectedOption = state.answers[currentQuestion.id];
     const reviewed = typeof selectedOption !== 'undefined';
-    const examDateParts = currentQuestion.exam_date ? currentQuestion.exam_date.split('-') : null;
-    const examDateLabel = examDateParts
-      ? `${Number.parseInt(examDateParts[2], 10)} ${new Date(Date.UTC(2000, Number.parseInt(examDateParts[1], 10) - 1, 1)).toLocaleString('en', { month: 'short', timeZone: 'UTC' })}`
-      : '';
+    const examDateLabel = currentQuestion.exam_date ? escapeHtml(currentQuestion.exam_date) : '';
 
     let html = `
       <div class="question-meta">
@@ -218,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         <div class="explanation-panel">
           <h4>Explanation</h4>
-          <p class="explanation-text"></p>
+          <div class="explanation-text"></div>
         </div>
       `;
     }
@@ -229,7 +245,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
     const explanationText = questionCard.querySelector('.explanation-text');
     if (explanationText) {
-      explanationText.textContent = currentQuestion.explanation || '';
+      explanationText.appendChild(
+        createSafeQuestionContent(currentQuestion.explanation || '')
+      );
     }
     updateProgress();
   }

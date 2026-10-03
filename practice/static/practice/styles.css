@@ -362,17 +362,22 @@ a {
   color: var(--text);
 }
 
-.question-content {
+.question-content,
+.explanation-text {
   font-size: 1.15rem;
   line-height: 1.7;
-  margin: 0 0 20px;
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: normal;
   hyphens: auto;
 }
 
-.question-content p {
+.question-content {
+  margin: 0 0 20px;
+}
+
+.question-content p,
+.explanation-text p {
   margin: 0 0 12px;
 }
 
@@ -384,7 +389,8 @@ a {
   border-radius: 8px;
 }
 
-.question-content table {
+.question-content table,
+.explanation-text table {
   width: 100%;
   min-width: 420px;
   border-collapse: collapse;
@@ -392,14 +398,17 @@ a {
 }
 
 .question-content th,
-.question-content td {
+.question-content td,
+.explanation-text th,
+.explanation-text td {
   padding: 10px 12px;
   border: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
 }
 
-.question-content th {
+.question-content th,
+.explanation-text th {
   background: #eef4fb;
   font-weight: 700;
 }
@@ -485,6 +494,12 @@ a {
   font-size: 1rem;
 }
 
+.explanation-text {
+  font-size: 1rem;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+
 .explanation-panel p {
   margin: 0;
   color: var(--muted);
@@ -493,6 +508,10 @@ a {
   word-break: break-word;
   white-space: pre-wrap;
   hyphens: auto;
+}
+
+.explanation-text p + p {
+  margin-top: 0.75em;
 }
 
 .practice-actions {
