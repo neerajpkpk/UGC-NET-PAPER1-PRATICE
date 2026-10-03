@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import secrets
 from pathlib import Path
-from urllib.parse import parse_qsl, urlparse
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
@@ -23,7 +23,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
-DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").strip().lower() in {"true", "1", "yes"}
 if not SECRET_KEY:
     if DEBUG:
         SECRET_KEY = secrets.token_urlsafe(50)
@@ -83,21 +83,15 @@ database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise ImproperlyConfigured("DATABASE_URL must be set to the Neon PostgreSQL connection URL.")
 
-postgres_url = urlparse(database_url)
-if postgres_url.scheme not in {"postgres", "postgresql"} or not postgres_url.hostname or not postgres_url.path.strip("/"):
-    raise ImproperlyConfigured("DATABASE_URL must be a valid PostgreSQL connection URL.")
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': postgres_url.path.lstrip('/'),
-        'USER': postgres_url.username,
-        'PASSWORD': postgres_url.password,
-        'HOST': postgres_url.hostname,
-        'PORT': postgres_url.port or 5432,
-        'OPTIONS': dict(parse_qsl(postgres_url.query)),
-    }
+    "default": dj_database_url.parse(
+        database_url,
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
+if DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+    raise ImproperlyConfigured("DATABASE_URL must be a valid PostgreSQL connection URL.")
 
 
 # Password validation

@@ -46,10 +46,11 @@ Open the site at `http://127.0.0.1:8000/` and the admin at `http://127.0.0.1:800
 ## Database Configuration
 
 - `DATABASE_URL` must be a PostgreSQL connection URL. The app stops with a configuration error if it is missing or invalid; it does not create or fall back to a local SQLite database.
+- `dj-database-url` parses the connection URL; production (`DJANGO_DEBUG=False`) requires PostgreSQL SSL, including when the URL does not already specify `sslmode=require`.
 - Use the Neon connection URL for local development and deployment. Keep it, its password, and `DJANGO_SECRET_KEY` in the untracked `.env` locally or in the hosting provider's secret environment variables. Never commit or share these values.
 - Set `DJANGO_DEBUG=True` only for local development and `False` in deployment.
 - `DJANGO_ALLOWED_HOSTS` is a comma-separated list. Locally it defaults to `localhost,127.0.0.1`; in deployment, set it to the Render service hostname and any custom domain.
-- The PostgreSQL driver (`psycopg`) is included in `requirements.txt`.
+- The PostgreSQL driver (`psycopg`) and `dj-database-url` are included in `requirements.txt`.
 
 ### Example local `.env`
 
@@ -77,6 +78,21 @@ Add these environment variables in Render:
 - `DJANGO_ALLOWED_HOSTS`: the Render service hostname, such as `your-service.onrender.com`; include a custom domain if configured.
 
 The build command applies Django migrations to Neon on each deployment; review and commit intended migrations before deploying. After deployment, verify the homepage and `/admin/`. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
+
+### Health Check and UptimeRobot
+
+`/health/` returns the plain-text response `ok` without querying PostgreSQL. It is intended for uptime checks, so it does not validate database availability.
+
+To monitor the Render service with UptimeRobot:
+
+1. Sign in to UptimeRobot and choose **Add New Monitor**.
+2. Choose **HTTP(s)** as the monitor type and give the monitor a name, such as `UGC NET website`.
+3. Enter `https://your-service.onrender.com/health/`, replacing the hostname with the Render service hostname.
+4. Set the monitoring interval to **5 minutes** (the free-plan interval).
+5. Select an alert contact method, then save the monitor.
+6. Check the monitor dashboard after its first check; the expected response is HTTP `200` with body `ok`.
+
+This endpoint check can keep the Render web service receiving requests, but it does not access or wake Neon. Availability behavior can still depend on the hosting providers' free-plan policies.
 
 ## Adding Real Questions
 

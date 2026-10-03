@@ -1,7 +1,11 @@
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from .models import Subject
+
+
+def health(request):
+    return HttpResponse("ok")
 
 
 def home(request):

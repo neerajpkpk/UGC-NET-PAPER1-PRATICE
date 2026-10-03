@@ -1,4 +1,5 @@
 Django==5.1.15
+dj-database-url==2.3.0
 python-dotenv==1.2.4
 # PostgreSQL driver for production environments:
 psycopg[binary]==3.2.13
