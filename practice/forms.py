@@ -28,3 +28,16 @@ class QuestionForm(forms.ModelForm):
             "difficulty",
             "question_order",
         ]
+
+
+class QuestionCSVImportForm(forms.Form):
+    csv_file = forms.FileField(
+        label="CSV file",
+        help_text="UTF-8 CSV, one question per row, up to 500 questions and 5 MB.",
+    )
+
+    def clean_csv_file(self):
+        csv_file = self.cleaned_data["csv_file"]
+        if csv_file.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("CSV file must be 5 MB or smaller.")
+        return csv_file

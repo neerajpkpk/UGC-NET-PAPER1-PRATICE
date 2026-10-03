@@ -1,8 +1,11 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import SimpleTestCase
 
+from .csv_import import QuestionCSVImportError, parse_questions_csv
+from .models import Subject
 from .sitemaps import PracticeSitemap, SubjectSitemap
 
 
@@ -102,3 +105,52 @@ class SeoEndpointTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<meta name="robots" content="noindex,follow" />', html=True)
         self.assertContains(response, "UGC NET Research Aptitude Practice Questions")
+
+
+class QuestionCSVImportTests(SimpleTestCase):
+    @patch("practice.csv_import.Question.full_clean")
+    def test_import_parser_builds_question_with_defaults(self, full_clean):
+        subject = Subject(id=7, name="Teaching Aptitude")
+        content = (
+            "subject,question_order,question_text,option_a,option_b,option_c,"
+            "option_d,correct_answer\n"
+            'Teaching Aptitude,2,"Which is correct, exactly?",A,B,C,D,b\n'
+        ).encode()
+        uploaded = SimpleUploadedFile("questions.csv", content, content_type="text/csv")
+
+        questions = parse_questions_csv(uploaded, {subject.name: subject})
+
+        self.assertEqual(len(questions), 1)
+        question = questions[0]
+        self.assertEqual(question.subject, subject)
+        self.assertEqual(question.question_order, 2)
+        self.assertEqual(question.question_text, "Which is correct, exactly?")
+        self.assertEqual(question.correct_answer, "B")
+        self.assertEqual(question.question_type, "Practice")
+        self.assertEqual(question.difficulty, "Medium")
+        full_clean.assert_called_once()
+
+    def test_import_parser_rejects_unknown_subject_without_partial_import(self):
+        content = (
+            "subject,question_order,question_text,option_a,option_b,option_c,"
+            "option_d,correct_answer\n"
+            "Unknown Subject,1,Question,A,B,C,D,A\n"
+        ).encode()
+        uploaded = SimpleUploadedFile("questions.csv", content, content_type="text/csv")
+
+        with self.assertRaisesRegex(QuestionCSVImportError, "unknown subject"):
+            parse_questions_csv(uploaded, {})
+
+    def test_import_parser_rejects_duplicate_question_orders(self):
+        subject = Subject(id=7, name="Teaching Aptitude")
+        content = (
+            "subject,question_order,question_text,option_a,option_b,option_c,"
+            "option_d,correct_answer\n"
+            "Teaching Aptitude,2,First,A,B,C,D,A\n"
+            "Teaching Aptitude,2,Second,A,B,C,D,B\n"
+        ).encode()
+        uploaded = SimpleUploadedFile("questions.csv", content, content_type="text/csv")
+
+        with patch("practice.csv_import.Question.full_clean"):
+            with self.assertRaisesRegex(QuestionCSVImportError, "also used in row 2"):
+                parse_questions_csv(uploaded, {subject.name: subject})

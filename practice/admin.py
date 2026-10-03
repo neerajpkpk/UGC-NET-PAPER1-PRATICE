@@ -1,6 +1,17 @@
-from django.contrib import admin
+import csv
+from io import StringIO
 
-from .forms import QuestionForm, SubjectForm
+from django.contrib import admin
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
+from django.utils.translation import gettext_lazy as _
+
+from .csv_import import QuestionCSVImportError, parse_questions_csv
+from .forms import QuestionCSVImportForm, QuestionForm, SubjectForm
 from .models import Question, Subject
 
 
@@ -15,6 +26,7 @@ class SubjectAdmin(admin.ModelAdmin):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     form = QuestionForm
+    change_list_template = "admin/practice/question/change_list.html"
     list_display = (
         "subject",
         "question_order",
@@ -62,3 +74,109 @@ class QuestionAdmin(admin.ModelAdmin):
             {"fields": ("explanation",)},
         ),
     )
+
+    def get_urls(self):
+        custom_urls = [
+            path(
+                "import-csv/",
+                self.admin_site.admin_view(self.import_csv_view),
+                name="practice_question_import_csv",
+            ),
+            path(
+                "import-csv/template/",
+                self.admin_site.admin_view(self.csv_template_view),
+                name="practice_question_csv_template",
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def import_csv_view(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+
+        form = QuestionCSVImportForm(request.POST or None, request.FILES or None)
+        import_errors = []
+        if request.method == "POST" and form.is_valid():
+            try:
+                subjects_by_name = {
+                    subject.name: subject for subject in Subject.objects.all()
+                }
+                questions = parse_questions_csv(
+                    form.cleaned_data["csv_file"],
+                    subjects_by_name,
+                )
+
+                existing_orders = set(
+                    Question.objects.filter(
+                        subject_id__in={question.subject_id for question in questions},
+                        question_order__in={
+                            question.question_order for question in questions
+                        },
+                    ).values_list("subject_id", "question_order")
+                )
+                conflicts = [
+                    f"{question.subject.name} question_order "
+                    f"{question.question_order}"
+                    for question in questions
+                    if (question.subject_id, question.question_order) in existing_orders
+                ]
+                if conflicts:
+                    raise QuestionCSVImportError(
+                        "These subject/order pairs already exist: "
+                        + ", ".join(conflicts)
+                        + ". Change question_order values before importing."
+                    )
+
+                with transaction.atomic():
+                    Question.objects.bulk_create(questions)
+            except QuestionCSVImportError as error:
+                import_errors = str(error).splitlines()
+            else:
+                self.message_user(
+                    request,
+                    _("%(count)s questions imported successfully.")
+                    % {"count": len(questions)},
+                    messages.SUCCESS,
+                )
+                return redirect(
+                    reverse(
+                        f"{self.admin_site.name}:practice_question_changelist",
+                    )
+                )
+
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "title": _("Import questions from CSV"),
+            "form": form,
+            "import_errors": import_errors,
+        }
+        return render(request, "admin/practice/question/import_csv.html", context)
+
+    def csv_template_view(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(
+            [
+                "subject",
+                "question_order",
+                "question_text",
+                "option_a",
+                "option_b",
+                "option_c",
+                "option_d",
+                "correct_answer",
+                "explanation",
+                "question_type",
+                "difficulty",
+                "exam_date",
+                "pyq_year",
+                "shift",
+            ]
+        )
+        response = HttpResponse(output.getvalue(), content_type="text/csv; charset=utf-8")
+        response["Content-Disposition"] = 'attachment; filename="questions-template.csv"'
+        return response

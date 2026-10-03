@@ -88,6 +88,18 @@ The build command applies Django migrations to Neon on each deployment; review a
 - Search autocomplete checked on 2026-10-03 suggested phrases such as “UGC NET Paper 1 mock test”, “UGC NET Paper 1 practice questions”, “UGC NET Paper 1 practice test online”, “UGC NET Paper 1 mock test with answers free”, and subject-specific searches for teaching aptitude, research aptitude, and logical reasoning. These are qualitative suggestions, not measured search volumes or ranking forecasts. The app should only target claims such as free, Hindi, PDF, PYQ, or full mock test if that content or feature is actually available.
 - Add original questions with correct answers and clear explanations before expecting subject pages to compete for search traffic. Track impressions and queries in Search Console, then prioritize topics where the site has useful, substantial content. No SEO change can guarantee Google indexing or recommendations by AI tools.
 
+### Search Console Progress (2026-10-03)
+
+- SEO and sitemap implementation was pushed to `main` in commit `50671ba`. Google ownership verification was added and pushed in `b1db463`; keep the `google-site-verification` meta tag in `practice/templates/practice/base.html` so Search Console ownership remains verified.
+- The URL-prefix property `https://ugc-net-paper1-pratice.onrender.com/` is verified in Google Search Console.
+- The homepage live URL test passed: Google reported that the URL is available and can be indexed. A homepage indexing request was submitted and added to Google's priority crawl queue. This is a request, not confirmation that the page is already indexed.
+- The sitemap was submitted as `sitemap.xml`, but Search Console reported **“Couldn't fetch”** and zero discovered pages at the last check. This remains unresolved even though the public sitemap URL returns HTTP 200 with `application/xml` and valid XML, and `/robots.txt` returns HTTP 200 and references it. Recheck the Search Console sitemap status before troubleshooting further; Google may need time to process the submission.
+- At the last live check, the sitemap contained five URLs: the homepage, two subjects with questions, and their two practice sessions. New question content automatically updates eligible sitemap URLs; only subjects that have questions are included.
+- On 2026-10-03, Search Console's live URL test for the homepage passed (“URL is available to Google” / “Page can be indexed”), and a homepage indexing request was accepted into Google's priority crawl queue. This does not confirm the URL is indexed.
+- The sitemap responds with HTTP 200 and parses as XML, including for a Googlebot user-agent request. Django's sitemap response includes `X-Robots-Tag: noindex, noodp, noarchive`; this is a clue to investigate against the Search Console “Couldn't fetch” result, not a confirmed cause. Check Google's sitemap fetch details/status before changing this behavior.
+- Later on 2026-10-03, URL Inspection reported the homepage (`https://ugc-net-paper1-pratice.onrender.com/`) as **“URL is on Google” / “Page is indexed.”** This confirms homepage indexing at that check. Search Console still showed the submitted sitemap as **“Couldn't fetch”** with zero discovered pages. A separate subject-page inspection was not confirmed.
+- Focus for the next SEO session: troubleshoot the sitemap fetch report, then inspect populated subject URLs and request indexing where appropriate. Do not remove the verification meta tag. No indexing or ranking date is guaranteed.
+
 ### Health Check and UptimeRobot
 
 `/health/` returns the plain-text response `ok` without querying PostgreSQL. It is intended for uptime checks, so it does not validate database availability.
@@ -106,10 +118,12 @@ This endpoint check can keep the Render web service receiving requests, but it d
 ## Adding Real Questions
 
 1. Sign in at `/admin/` and create a Subject first if the subject does not exist.
-2. Open **Questions → Add** and select the subject.
+2. For individual entry, open **Questions → Add** and select the subject. For bulk entry, open **Questions → Import questions from CSV**, download the template, fill it, and upload the CSV.
 3. Fill Question text, Option A-D, Correct answer, Explanation, Question type, Exam date, PYQ year, and Shift when applicable, Difficulty, and Question order.
 4. Give questions sequential `question_order` values within a subject so the 50-question practice ranges appear in the intended order. Ties are ordered by database ID.
 5. Save. The subject total and practice cards update from the database automatically.
+
+The CSV importer accepts UTF-8 CSV files of up to 5 MB and 500 questions. Required columns are `subject`, `question_order`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, and `correct_answer`. Optional columns are `explanation`, `question_type`, `difficulty`, `exam_date` (`YYYY-MM-DD`), `pyq_year`, and `shift`. Subject names must match an existing admin subject exactly. All rows are validated first; if any row is invalid or a subject/order pair already exists, none of the rows are imported.
 
 Do **not** run `python manage.py seed_data` when preparing the clean real question bank. That command creates demo/sample questions. It is only for development scenarios where sample content is explicitly wanted.
 
