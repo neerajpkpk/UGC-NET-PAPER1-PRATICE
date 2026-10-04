@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="xDGDN6Xgimhxe_Jlr7Yoq7TydjWrO15lhE8-OaDv1Ok" />
+    <title>{% block title %}{{ page_title|default:"UGC NET Paper 1 Online Practice" }}{% endblock %}</title>
+    <meta name="description" content="{{ page_description|default:'Practise UGC NET Paper 1 online with subject-wise questions and practice sessions.' }}" />
+    <meta name="robots" content="{% block robots %}index,follow{% endblock %}" />
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ page_title|default:'UGC NET Paper 1 Online Practice' }}" />
+    <meta property="og:description" content="{{ page_description|default:'Practise UGC NET Paper 1 online with subject-wise questions and practice sessions.' }}" />
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'practice/styles.css' %}?v=5" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <a href="{% url 'home' %}" class="brand">UGC NET Paper 1 Practice</a>
+        </div>
+        <nav class="top-nav">
+          <a href="{% url 'home' %}">Home</a>
+        </nav>
+      </header>
+
+      <main class="main-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <script src="{% static 'practice/app.js' %}?v=999"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
