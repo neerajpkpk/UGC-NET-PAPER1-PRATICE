@@ -23,6 +23,7 @@ def robots_txt(request):
 
 def home(request):
     subjects = Subject.objects.all()
+    total_site_questions = sum(subject.total_questions for subject in subjects)
     subject_cards = []
     for subject in subjects:
         subject_cards.append(
@@ -36,11 +37,12 @@ def home(request):
         "practice/home.html",
         {
             "subjects": subject_cards,
-            "page_title": "UGC NET Paper 1 Online Practice Questions",
+            "total_site_questions": total_site_questions,
+            "page_title": "Free UGC NET Paper 1 Mock Tests & Practice Questions",
             "page_description": (
-                "Practise UGC NET Paper 1 online with subject-wise questions. "
-                "Browse available topics and start a practice session with "
-                "questions, answers and explanations."
+                "Free UGC NET Paper 1 mock tests with unit-wise practice "
+                "questions and PYQs from multiple years. Get answers, clear "
+                "explanations and track progress across all 10 units."
             ),
         },
     )
