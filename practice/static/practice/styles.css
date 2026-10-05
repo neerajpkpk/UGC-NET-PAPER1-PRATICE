@@ -534,6 +534,19 @@ a {
   margin: 0 0 8px;
 }
 
+.practice-card .pyq-range {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 18px;
+  padding: 7px 12px;
+  border: 1px solid #c8d7ff;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #eef3ff, #f7f0ff);
+  color: #3949ab;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .empty-state {
   background: #f8fafc;
   border: 1px dashed #bfd0ff;

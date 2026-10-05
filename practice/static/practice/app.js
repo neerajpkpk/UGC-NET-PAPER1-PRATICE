@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const questionCounter = document.getElementById('question-counter');
   const prevBtn = document.getElementById('prev-btn');
   const nextBtn = document.getElementById('next-btn');
-  const skipBtn = document.getElementById('skip-btn');
+  const submitBtn = document.getElementById('submit-btn');
 
   const menuButton = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  if (!questionsScript || !questionCard || !progressFill || !questionCounter || !prevBtn || !nextBtn || !skipBtn) {
+  if (!questionsScript || !questionCard || !progressFill || !questionCounter || !prevBtn || !nextBtn || !submitBtn) {
     return;
   }
 
@@ -134,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
       prevBtn.style.opacity = '0.6';
       nextBtn.disabled = true;
       nextBtn.textContent = 'Next';
+      submitBtn.disabled = true;
       return;
     }
 
@@ -142,9 +143,9 @@ document.addEventListener('DOMContentLoaded', function () {
     questionCounter.textContent = `Question ${state.currentIndex + 1} / ${questions.length}`;
     prevBtn.disabled = state.currentIndex === 0;
     prevBtn.style.opacity = state.currentIndex === 0 ? '0.6' : '1';
-    skipBtn.disabled = !questions.length;
     nextBtn.disabled = false;
-    nextBtn.textContent = state.currentIndex === questions.length - 1 ? 'Finish Practice' : 'Next';
+    nextBtn.textContent = 'Next';
+    submitBtn.disabled = false;
   }
 
   function renderResults() {
@@ -180,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
     questionCard.classList.add('hidden');
     prevBtn.classList.add('hidden');
     nextBtn.classList.add('hidden');
+    submitBtn.classList.add('hidden');
 
     const retryBtn = document.getElementById('retry-practice');
     if (retryBtn) {
@@ -191,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
         questionCard.classList.remove('hidden');
         prevBtn.classList.remove('hidden');
         nextBtn.classList.remove('hidden');
+        submitBtn.classList.remove('hidden');
         renderQuestion();
       });
     }
@@ -209,8 +212,8 @@ document.addEventListener('DOMContentLoaded', function () {
       `;
       resultCard.classList.add('hidden');
       prevBtn.disabled = true;
-      skipBtn.disabled = true;
       nextBtn.disabled = true;
+      submitBtn.disabled = true;
       updateProgress();
       return;
     }
@@ -317,8 +320,9 @@ document.addEventListener('DOMContentLoaded', function () {
     moveToNextQuestion();
   });
 
-  skipBtn.addEventListener('click', function () {
-    moveToNextQuestion();
+  submitBtn.addEventListener('click', function () {
+    state.finished = true;
+    renderResults();
   });
 
   questionCard.addEventListener('click', function (event) {

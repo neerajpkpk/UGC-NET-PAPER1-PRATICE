@@ -16,9 +16,9 @@
   </div>
 
   <p>
-    Practise {{ subject.name }} questions for UGC NET Paper 1. There are
-    {{ total_questions }} questions currently available, arranged into
-    sessions of up to 50 questions each.
+    Explore all {{ total_questions }} {{ subject.name }} questions for UGC NET
+    Paper 1, organised into quick sets of up to 10 questions. Choose a set and
+    start practising!
   </p>
 
   <div class="practice-grid">
@@ -27,8 +27,8 @@
         <div class="practice-card-header">
           <span class="practice-label">Practice {{ practice.number }}</span>
         </div>
-        <h3>{{ practice.question_count }} Questions</h3>
-        <p>Questions {{ practice.start }}–{{ practice.end }}</p>
+        <h3>PYQ Set {{ practice.number }}</h3>
+        <p class="pyq-range">✦ PYQ {{ practice.start }}–{{ practice.end }}</p>
         <a href="{% url 'practice_detail' subject.slug practice.number %}" class="primary-btn">Start Practice</a>
       </article>
     {% empty %}
