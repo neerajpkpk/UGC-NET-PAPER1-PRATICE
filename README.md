@@ -12,7 +12,7 @@ A Django practice platform for UGC NET Paper 1. Subjects and questions are store
 ## Features Implemented
 
 - Subject question totals are counted from the database.
-- Practice sessions are generated in groups of 50 questions. A subject with 1-50 questions gets Practice 1, 51-100 adds Practice 2, and so on. The final practice contains only the remaining questions.
+- Practice sessions are generated in groups of 10 questions. A subject with 1-10 questions gets Practice 1, 11-20 adds Practice 2, and so on. The final practice contains only the remaining questions.
 - Subject pages show the database total and generated practice ranges.
 - The practice page shows one question at a time with A-D options, answer feedback, explanation, Previous, Skip, Next, finish, and retry behavior.
 - Question tables and basic text formatting render in the question prompt. Tables scroll horizontally on narrow screens.
@@ -120,7 +120,7 @@ This endpoint check can keep the Render web service receiving requests, but it d
 1. Sign in at `/admin/` and create a Subject first if the subject does not exist.
 2. For individual entry, open **Questions → Add** and select the subject. For bulk entry, open **Questions → Import questions from CSV**, download the template, fill it, and upload the CSV.
 3. Fill Question text, Option A-D, Correct answer, Explanation, Question type, Exam date, PYQ year, and Shift when applicable, Difficulty, and Question order.
-4. Give questions sequential `question_order` values within a subject so the 50-question practice ranges appear in the intended order. Ties are ordered by database ID.
+4. Give questions sequential `question_order` values within a subject so the 10-question practice ranges appear in the intended order. Ties are ordered by database ID.
 5. Save. The subject total and practice cards update from the database automatically.
 
 The CSV importer accepts UTF-8 CSV files of up to 5 MB and 500 questions. Required columns are `subject`, `question_order`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, and `correct_answer`. Optional columns are `explanation`, `question_type`, `difficulty`, `exam_date` (`YYYY-MM-DD`), `pyq_year`, and `shift`. Subject names must match an existing admin subject exactly. All rows are validated first; if any row is invalid or a subject/order pair already exists, none of the rows are imported.
@@ -150,7 +150,7 @@ For PYQs, enter the exam date and year, then select First Shift or Second Shift 
 
 ## Models and Main Files
 
-- `practice/models.py`: Subject/Question schema and dynamic 50-question grouping.
+- `practice/models.py`: Subject/Question schema and dynamic 10-question grouping.
 - `practice/admin.py` and `practice/forms.py`: Django admin question and subject entry.
 - `practice/views.py`: homepage, subject/practice pages, and question payload.
 - `practice/templates/practice/`: shared layout and page templates.

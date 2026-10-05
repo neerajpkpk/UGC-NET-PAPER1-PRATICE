@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
-QUESTIONS_PER_PRACTICE = 50
+QUESTIONS_PER_PRACTICE = 10
 
 
 class Subject(models.Model):
