@@ -1,9 +1,10 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en-IN">
+<html lang="en-IN" id="top">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'practice/favicon.svg' %}?v=2" />
     <meta name="google-site-verification" content="xDGDN6Xgimhxe_Jlr7Yoq7TydjWrO15lhE8-OaDv1Ok" />
     <title>{% block title %}{{ page_title|default:"UGC NET Paper 1 Online Practice" }}{% endblock %}</title>
     <meta name="description" content="{{ page_description|default:'Practise UGC NET Paper 1 online with subject-wise questions and practice sessions.' }}" />
@@ -16,25 +17,63 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'practice/styles.css' %}?v=5" />
+    <link rel="stylesheet" href="{% static 'practice/styles.css' %}?v=9" />
   </head>
   <body>
     <div class="page-shell">
-      <header class="topbar">
-        <div class="brand-wrap">
-          <a href="{% url 'home' %}" class="brand">UGC NET Paper 1 Practice</a>
+      {% url 'home' as home_url %}
+      <nav class="main-navbar" aria-label="Main navigation">
+        <div class="navbar-container">
+          <a href="{{ home_url }}" class="navbar-brand">
+            <span class="brand-icon" aria-hidden="true">🎓</span>
+            <span><strong>UGC NET</strong> Paper 1 Practice</span>
+          </a>
+          <div class="navbar-links">
+            <a href="{{ home_url }}" class="nav-link{% if request.path == home_url %} active{% endif %}">Home</a>
+            <a href="{{ home_url }}#subjects" class="nav-link">Browse Units</a>
+            <a href="{{ home_url }}#faq" class="nav-link">FAQs</a>
+            <a href="{{ home_url }}#subjects" class="nav-cta">Start Practising <span aria-hidden="true">→</span></a>
+          </div>
+          <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu">☰</button>
         </div>
-        <nav class="top-nav">
-          <a href="{% url 'home' %}">Home</a>
-        </nav>
-      </header>
+        <div class="mobile-menu" id="mobileMenu" hidden>
+          <a href="{{ home_url }}" class="mobile-nav-link">Home</a>
+          <a href="{{ home_url }}#subjects" class="mobile-nav-link">Browse Units</a>
+          <a href="{{ home_url }}#faq" class="mobile-nav-link">FAQs</a>
+          <a href="{{ home_url }}#subjects" class="mobile-nav-cta">Start Practising →</a>
+        </div>
+      </nav>
 
       <main class="main-content">
         {% block content %}{% endblock %}
       </main>
+
+      <footer class="site-footer">
+        <div class="footer-main">
+          <div class="footer-about">
+            <a href="{% url 'home' %}" class="footer-brand">
+              <span class="footer-brand-mark" aria-hidden="true">NET</span>
+              <span>UGC NET <strong>Paper 1 Practice</strong></span>
+            </a>
+            <p class="footer-kicker">PRACTISE WITH PURPOSE</p>
+            <p class="footer-description">Build confidence for UGC NET Paper 1 with free, subject-wise questions and explanations.</p>
+            <a class="footer-start-link" href="{% url 'home' %}#subjects">Start practising <span aria-hidden="true">→</span></a>
+          </div>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <span class="footer-nav-title">EXPLORE</span>
+            <a href="{% url 'home' %}"><span>Home</span><span aria-hidden="true">↗</span></a>
+            <a href="{% url 'home' %}#subjects"><span>All 10 practice units</span><span aria-hidden="true">↗</span></a>
+            <a href="{% url 'home' %}#faq"><span>Frequently asked questions</span><span aria-hidden="true">↗</span></a>
+          </nav>
+        </div>
+        <div class="footer-bottom">
+          <span>© {% now "Y" %} UGC NET Paper 1 Practice. Made for your next step.</span>
+          <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+        </div>
+      </footer>
     </div>
 
-    <script src="{% static 'practice/app.js' %}?v=999"></script>
+    <script src="{% static 'practice/app.js' %}?v=1000"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

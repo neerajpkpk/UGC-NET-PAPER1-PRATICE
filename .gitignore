@@ -24,3 +24,7 @@ venv/
 __pycache__/
 .vscode/
 .pdf_work/
+
+.hero-undo/
+
+.navbar-undo/

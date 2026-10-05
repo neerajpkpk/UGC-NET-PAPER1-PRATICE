@@ -8,6 +8,41 @@ document.addEventListener('DOMContentLoaded', function () {
   const nextBtn = document.getElementById('next-btn');
   const skipBtn = document.getElementById('skip-btn');
 
+  const menuButton = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  if (menuButton && mobileMenu) {
+    function setMenuOpen(isOpen) {
+      mobileMenu.hidden = !isOpen;
+      menuButton.setAttribute('aria-expanded', String(isOpen));
+      menuButton.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+      menuButton.textContent = isOpen ? '×' : '☰';
+    }
+
+    menuButton.addEventListener('click', function () {
+      setMenuOpen(mobileMenu.hidden);
+    });
+
+    mobileMenu.addEventListener('click', function (event) {
+      if (event.target.closest('a')) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!mobileMenu.hidden && !mobileMenu.contains(event.target) && !menuButton.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !mobileMenu.hidden) {
+        setMenuOpen(false);
+        menuButton.focus();
+      }
+    });
+  }
+
   if (!questionsScript || !questionCard || !progressFill || !questionCounter || !prevBtn || !nextBtn || !skipBtn) {
     return;
   }
