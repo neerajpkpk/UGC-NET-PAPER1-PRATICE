@@ -21,7 +21,6 @@ class QuestionForm(forms.ModelForm):
             "option_d",
             "correct_answer",
             "explanation",
-            "question_type",
             "exam_date",
             "pyq_year",
             "shift",
@@ -43,7 +42,7 @@ class QuestionCSVImportForm(forms.Form):
         label="CSV file",
         help_text=(
             "UTF-8 CSV, one question per row, up to 500 questions and 5 MB. "
-            "Do not include subject or question_order columns."
+            "Do not include subject or question_order columns. Imported questions are marked as PYQ."
         ),
     )
 

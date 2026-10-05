@@ -1,12 +1,37 @@
+from pathlib import Path
+
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 
 from .models import Subject
 
+BING_SITE_AUTH_FILE = Path(__file__).with_name("BingSiteAuth.xml")
+
+
+SUBJECT_INTROS = {
+    "teaching-aptitude": "Revise teaching methods, learner characteristics, teaching aids and classroom evaluation through previous year questions.",
+    "research-aptitude": "Review research methods, sampling, data collection, research ethics and the fundamentals of academic writing.",
+    "comprehension": "Build reading accuracy with passage-based questions that test understanding, inference and interpretation.",
+    "communication": "Study communication models, classroom communication, barriers, media and the role of communication in learning.",
+    "mathematical-reasoning-and-aptitude": "Practise number systems, arithmetic, ratios, percentages, series and quantitative reasoning.",
+    "logical-reasoning": "Review arguments, fallacies, analogies, syllogisms, Indian logic and methods of reasoning.",
+    "data-interpretation": "Practise reading tables, charts and graphs, then solve questions using comparison and quantitative analysis.",
+    "information-and-communication-technology": "Review computer fundamentals, the internet, digital learning, communication technologies and ICT in education.",
+    "people-development-and-environment": "Study environment, ecosystems, pollution, sustainable development, population and related policies.",
+    "higher-education-system": "Review the development, governance, policies, institutions and changing landscape of higher education in India.",
+}
+
 
 def health(request):
     return HttpResponse("ok")
+
+
+def bing_site_auth(request):
+    return HttpResponse(
+        BING_SITE_AUTH_FILE.read_bytes(),
+        content_type="application/xml; charset=utf-8",
+    )
 
 
 def robots_txt(request):
@@ -38,11 +63,10 @@ def home(request):
         {
             "subjects": subject_cards,
             "total_site_questions": total_site_questions,
-            "page_title": "Free UGC NET Paper 1 Mock Tests & Practice Questions",
+            "page_title": "Free UGC NET Paper 1 PYQs | Subject-wise Previous Year Questions",
             "page_description": (
-                "Free UGC NET Paper 1 mock tests with unit-wise practice "
-                "questions and PYQs from multiple years. Get answers, clear "
-                "explanations and track progress across all 10 units."
+                "Practise UGC NET Paper 1 previous year questions across all "
+                "10 units. Choose a subject, check answers and review explanations."
             ),
         },
     )
@@ -55,11 +79,14 @@ def subject_detail(request, slug):
 
     practice_cards = subject.get_practice_cards()
     total_questions = subject.total_questions
-    page_title = f"UGC NET {subject.name} Practice Questions"
+    subject_intro = (getattr(subject, "description", "") or "").strip() or SUBJECT_INTROS.get(
+        subject.slug,
+        f"Explore UGC NET Paper 1 previous year questions for {subject.name} and review answers with explanations.",
+    )
+    page_title = f"UGC NET {subject.name} PYQs | Paper 1 Previous Year Questions"
     page_description = (
-        f"Practise {subject.name} questions for UGC NET Paper 1. "
-        f"There are currently {total_questions} questions available in "
-        "subject-wise practice sessions."
+        f"Practise {total_questions} UGC NET Paper 1 {subject.name} PYQs. "
+        f"{subject_intro}"
     )
 
     return render(
@@ -69,6 +96,7 @@ def subject_detail(request, slug):
             "subject": subject,
             "practice_cards": practice_cards,
             "total_questions": total_questions,
+            "subject_intro": subject_intro,
             "page_title": page_title,
             "page_description": page_description,
         },
@@ -115,14 +143,12 @@ def practice_detail(request, slug, practice_number):
             "questions_json": question_payload,
             "total_questions": len(question_payload),
             "page_title": (
-                f"UGC NET {subject.name} Practice Questions "
-                f"- Practice {practice_number}"
+                f"UGC NET {subject.name} PYQ Set {practice_number} | Paper 1"
             ),
             "page_description": (
-                f"Practise {len(question_payload)} UGC NET Paper 1 "
-                f"{subject.name} questions in Practice {practice_number}. "
-                "Review your answers and explanations as you work through "
-                "the session."
+                f"Attempt {len(question_payload)} {subject.name} previous year "
+                f"questions for UGC NET Paper 1. Check answers and explanations "
+                f"in PYQ Set {practice_number}."
             ),
         },
     )

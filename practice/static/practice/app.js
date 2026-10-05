@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let html = `
       <div class="question-meta">
-        <span class="badge">${currentQuestion.question_type === 'PYQ' ? `PYQ${examDateLabel ? ` • ${examDateLabel}` : ''}${currentQuestion.pyq_year ? ` • ${currentQuestion.pyq_year}` : ''}${currentQuestion.shift ? ` • ${currentQuestion.shift} Shift` : ''}` : 'Practice'}</span>
+        <span class="badge">PYQ${examDateLabel ? ` • ${examDateLabel}` : ''}${currentQuestion.pyq_year ? ` • ${currentQuestion.pyq_year}` : ''}${currentQuestion.shift ? ` • ${currentQuestion.shift} Shift` : ''}</span>
         <span class="badge subtle">${currentQuestion.difficulty}</span>
       </div>
       <div class="question-content"></div>

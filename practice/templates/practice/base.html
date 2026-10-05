@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="{% static 'practice/favicon.svg' %}?v=2" />
     <meta name="google-site-verification" content="xDGDN6Xgimhxe_Jlr7Yoq7TydjWrO15lhE8-OaDv1Ok" />
-    <title>{% block title %}{{ page_title|default:"UGC NET Paper 1 Online Practice" }}{% endblock %}</title>
-    <meta name="description" content="{{ page_description|default:'Practise UGC NET Paper 1 online with subject-wise questions and practice sessions.' }}" />
+    <title>{% block title %}{{ page_title|default:"Free UGC NET Paper 1 PYQs" }}{% endblock %}</title>
+    <meta name="description" content="{{ page_description|default:'Explore free, subject-wise UGC NET Paper 1 previous year questions with answers and explanations.' }}" />
     <meta name="robots" content="{% block robots %}index,follow{% endblock %}" />
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ page_title|default:'UGC NET Paper 1 Online Practice' }}" />
-    <meta property="og:description" content="{{ page_description|default:'Practise UGC NET Paper 1 online with subject-wise questions and practice sessions.' }}" />
+    <meta property="og:title" content="{{ page_title|default:'Free UGC NET Paper 1 PYQs' }}" />
+    <meta property="og:description" content="{{ page_description|default:'Explore free, subject-wise UGC NET Paper 1 previous year questions with answers and explanations.' }}" />
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'practice/styles.css' %}?v=10" />
+    <link rel="stylesheet" href="{% static 'practice/styles.css' %}?v=12" />
   </head>
   <body>
     <div class="page-shell">
@@ -73,7 +73,7 @@
       </footer>
     </div>
 
-    <script src="{% static 'practice/app.js' %}?v=1001"></script>
+    <script src="{% static 'practice/app.js' %}?v=1002"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

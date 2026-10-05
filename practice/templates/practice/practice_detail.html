@@ -6,7 +6,7 @@
     <div>
       <span class="eyebrow">UGC NET Paper 1</span>
       <h1>{{ subject.name }}</h1>
-      <p>Practice {{ practice_number }}</p>
+      <p>PYQ Set {{ practice_number }} · Previous Year Questions</p>
     </div>
     <a href="{% url 'subject_detail' subject.slug %}" class="secondary-btn">Back to Subject</a>
   </div>
@@ -18,7 +18,21 @@
     </div>
   </div>
 
-  <div id="question-card" class="question-card"></div>
+  <div id="question-card" class="question-card">
+    {% with first_question=question_payload.0 %}
+      <div class="question-meta">
+        <span class="badge">PYQ{% if first_question.pyq_year %} • {{ first_question.pyq_year }}{% endif %}{% if first_question.shift %} • {{ first_question.shift }} Shift{% endif %}</span>
+        <span class="badge subtle">{{ first_question.difficulty }}</span>
+      </div>
+      <div class="question-content">{{ first_question.question_text }}</div>
+      <div class="option-group">
+        <button type="button" class="option-btn"><span class="option-letter">A</span><span>{{ first_question.option_a }}</span></button>
+        <button type="button" class="option-btn"><span class="option-letter">B</span><span>{{ first_question.option_b }}</span></button>
+        <button type="button" class="option-btn"><span class="option-letter">C</span><span>{{ first_question.option_c }}</span></button>
+        <button type="button" class="option-btn"><span class="option-letter">D</span><span>{{ first_question.option_d }}</span></button>
+      </div>
+    {% endwith %}
+  </div>
 
   <div class="practice-actions">
     <button id="prev-btn" class="secondary-btn" type="button">Previous</button>

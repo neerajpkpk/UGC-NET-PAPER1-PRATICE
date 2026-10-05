@@ -12,9 +12,9 @@ A Django practice platform for UGC NET Paper 1. Subjects and questions are store
 ## Features Implemented
 
 - Subject question totals are counted from the database.
-- Practice sessions are generated in groups of 10 questions. A subject with 1-10 questions gets Practice 1, 11-20 adds Practice 2, and so on. The final practice contains only the remaining questions.
-- Subject pages show the database total and generated practice ranges.
-- The practice page shows one question at a time with A-D options, answer feedback, explanation, Previous, Skip, Next, finish, and retry behavior.
+- PYQ sets are generated in groups of 10 questions. A subject with 1-10 questions gets PYQ Set 1, 11-20 adds PYQ Set 2, and so on. The final set contains only the remaining questions.
+- Subject pages show the database total and generated PYQ ranges.
+- Each PYQ set shows one question at a time with A-D options, answer feedback, explanations, Previous, Next, Submit, and retry controls.
 - Question tables and basic text formatting render in the question prompt. Tables scroll horizontally on narrow screens.
 - Newlines and blank lines in plain-text explanations are preserved on the practice page.
 - Long question and option text wraps within the page.
@@ -119,11 +119,11 @@ This endpoint check can keep the Render web service receiving requests, but it d
 
 1. Sign in at `/admin/` and create a Subject first if the subject does not exist.
 2. For individual entry, open **Questions → Add** and select the subject. For bulk entry, open **Questions → Import questions from CSV**, download the template, fill it, and upload the CSV.
-3. Fill Question text, Option A-D, Correct answer, Explanation, Question type, Exam date, PYQ year, and Shift when applicable, Difficulty, and Question order.
-4. Give questions sequential `question_order` values within a subject so the 10-question practice ranges appear in the intended order. Ties are ordered by database ID.
-5. Save. The subject total and practice cards update from the database automatically.
+3. Fill Question text, Option A-D, Correct answer, Explanation, Exam date, PYQ year, and Shift when applicable, Difficulty, and Question order. New questions default to PYQ.
+4. Give questions sequential `question_order` values within a subject so the 10-question PYQ sets appear in the intended order. Ties are ordered by database ID.
+5. Save. The subject total and PYQ set cards update from the database automatically.
 
-The CSV importer accepts UTF-8 CSV files of up to 5 MB and 500 questions. Required columns are `subject`, `question_order`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, and `correct_answer`. Optional columns are `explanation`, `question_type`, `difficulty`, `exam_date` (`YYYY-MM-DD`), `pyq_year`, and `shift`. Subject names must match an existing admin subject exactly. All rows are validated first; if any row is invalid or a subject/order pair already exists, none of the rows are imported.
+The CSV importer accepts UTF-8 CSV files of up to 5 MB and 500 questions. Required columns are `subject`, `question_order`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, and `correct_answer`. Optional columns are `explanation`, `difficulty`, `exam_date` (`YYYY-MM-DD`), `pyq_year`, and `shift`. For compatibility, a legacy `question_type` column is accepted but ignored; every imported question is marked as a PYQ. Subject names must match an existing admin subject exactly. All rows are validated first; if any row is invalid or a subject/order pair already exists, none of the rows are imported.
 
 Do **not** run `python manage.py seed_data` when preparing the clean real question bank. That command creates demo/sample questions. It is only for development scenarios where sample content is explicitly wanted.
 

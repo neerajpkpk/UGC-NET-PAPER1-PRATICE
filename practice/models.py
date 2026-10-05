@@ -100,7 +100,7 @@ class Question(models.Model):
     option_d = models.CharField(max_length=500)
     correct_answer = models.CharField(max_length=1, choices=[("A", "A"), ("B", "B"), ("C", "C"), ("D", "D")])
     explanation = models.TextField(blank=True)
-    question_type = models.CharField(max_length=15, choices=QUESTION_TYPE_CHOICES, default="Practice")
+    question_type = models.CharField(max_length=15, choices=QUESTION_TYPE_CHOICES, default="PYQ")
     exam_date = models.CharField(max_length=50, null=True, blank=True)
     pyq_year = models.PositiveIntegerField(null=True, blank=True)
     shift = models.CharField(max_length=10, choices=SHIFT_CHOICES, blank=True)

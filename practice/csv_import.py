@@ -171,7 +171,7 @@ def parse_questions_csv(
                 option_d=row["option_d"],
                 correct_answer=row["correct_answer"].upper(),
                 explanation=row.get("explanation", ""),
-                question_type=row.get("question_type") or "Practice",
+                question_type="PYQ",
                 difficulty=row.get("difficulty") or "Medium",
                 exam_date=row.get("exam_date", ""),
                 pyq_year=pyq_year,

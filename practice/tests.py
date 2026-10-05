@@ -77,7 +77,7 @@ class SeoEndpointTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "<title>UGC NET Paper 1 Online Practice Questions</title>",
+            "<title>Free UGC NET Paper 1 PYQs | Subject-wise Previous Year Questions</title>",
             html=True,
         )
         self.assertContains(
@@ -104,7 +104,7 @@ class SeoEndpointTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<meta name="robots" content="noindex,follow" />', html=True)
-        self.assertContains(response, "UGC NET Research Aptitude Practice Questions")
+        self.assertContains(response, "UGC NET Research Aptitude PYQs | Paper 1 Previous Year Questions")
 
 
 class QuestionCSVImportTests(SimpleTestCase):
@@ -126,7 +126,7 @@ class QuestionCSVImportTests(SimpleTestCase):
         self.assertEqual(question.question_order, 2)
         self.assertEqual(question.question_text, "Which is correct, exactly?")
         self.assertEqual(question.correct_answer, "B")
-        self.assertEqual(question.question_type, "Practice")
+        self.assertEqual(question.question_type, "PYQ")
         self.assertEqual(question.difficulty, "Medium")
         full_clean.assert_called_once()
 
