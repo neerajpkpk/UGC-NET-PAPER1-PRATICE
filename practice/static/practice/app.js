@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     state.currentIndex += 1;
     renderQuestion();
+    questionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   nextBtn.addEventListener('click', function () {

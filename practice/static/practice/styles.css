@@ -591,6 +591,7 @@ a {
 
 .question-card {
   margin-top: 26px;
+  scroll-margin-top: 24px;
   background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
   border: 1px solid var(--border);
   border-radius: 22px;
