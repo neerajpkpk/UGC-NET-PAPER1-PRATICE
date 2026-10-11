@@ -75,7 +75,20 @@ Add these environment variables in Render:
 - `DATABASE_URL`: Neon PostgreSQL connection URL, entered as a secret environment variable.
 - `DJANGO_SECRET_KEY`: a unique, private production secret.
 - `DJANGO_DEBUG`: `False`.
-- `DJANGO_ALLOWED_HOSTS`: the Render service hostname, such as `your-service.onrender.com`; include a custom domain if configured.
+- `DJANGO_ALLOWED_HOSTS`: `ugc-net-paper1-pratice.onrender.com,ugcnetprep.me,www.ugcnetprep.me`.
+
+### Custom Domain: `ugcnetprep.me`
+
+The custom domain is intended to use `https://ugcnetprep.me/` as its primary address, with `https://www.ugcnetprep.me/` redirecting to it.
+
+1. In the Render web service dashboard, open **Settings → Custom Domains** and add `ugcnetprep.me`. Render automatically adds the matching `www` domain and redirects it to the root domain.
+2. At the domain registrar's DNS settings, point the root domain to Render with an `A` record: host `@`, value `216.24.57.1`. Add a `CNAME` record for host `www`, value `ugc-net-paper1-pratice.onrender.com`.
+3. Remove conflicting root/`www` parking, forwarding, A, or CNAME records, and remove any `AAAA` records for these hosts. Render currently uses IPv4 for custom-domain routing.
+4. Return to Render and click **Verify**. Render provisions and renews HTTPS certificates after DNS verification.
+5. Confirm the Render environment variable `DJANGO_ALLOWED_HOSTS` contains the Render hostname, `ugcnetprep.me`, and `www.ugcnetprep.me`, then redeploy or restart the service.
+6. Once the domain works, add `https://ugcnetprep.me/` as a URL-prefix property in Google Search Console and submit `https://ugcnetprep.me/sitemap.xml`.
+
+DNS record interfaces differ by registrar. If the registrar offers a CNAME flattening, ALIAS, or ANAME record for the root, Render's DNS guidance may allow that instead of the A record. Follow the values shown in the Render dashboard if they differ from these examples.
 
 The build command applies Django migrations to Neon on each deployment; review and commit intended migrations before deploying. After deployment, verify the homepage and `/admin/`. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
 
@@ -162,7 +175,7 @@ For PYQs, enter the exam date and year, then select First Shift or Second Shift 
 
 - Practice sessions are computed and are not stored in a separate session table.
 - Questions are ordered by `question_order`, then `id`.
-- Randomized practice, user accounts/progress, bulk import, and automatic PDF parsing are not implemented yet.
+- Randomized practice, user accounts/progress, and automatic PDF parsing are not implemented yet. Bulk question import is available through the admin CSV importer described above.
 
 ## GitHub Repository
 

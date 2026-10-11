@@ -32,7 +32,10 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    for host in os.environ.get(
+        "DJANGO_ALLOWED_HOSTS",
+        "localhost,127.0.0.1,ugc-net-paper1-pratice.onrender.com,ugcnetprep.me,www.ugcnetprep.me",
+    ).split(",")
     if host.strip()
 ]
 
@@ -78,7 +81,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ugcnet_practice.wsgi.application'
 
 
-# Database
+# Database: PostgreSQL is required; there is no local SQLite settings module.
 database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise ImproperlyConfigured("DATABASE_URL must be set to the Neon PostgreSQL connection URL.")
@@ -128,7 +131,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
     'default': {
