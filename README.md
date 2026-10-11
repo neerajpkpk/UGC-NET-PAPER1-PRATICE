@@ -88,6 +88,8 @@ The custom domain is intended to use `https://ugcnetprep.me/` as its primary add
 5. Confirm the Render environment variable `DJANGO_ALLOWED_HOSTS` contains the Render hostname, `ugcnetprep.me`, and `www.ugcnetprep.me`, then redeploy or restart the service.
 6. Once the domain works, add `https://ugcnetprep.me/` as a URL-prefix property in Google Search Console and submit `https://ugcnetprep.me/sitemap.xml`.
 
+The old `ugc-net-paper1-pratice.onrender.com` address permanently redirects to the matching `ugcnetprep.me` page. Keep the Render hostname enabled so Google and visitors can follow these redirects during the domain move.
+
 DNS record interfaces differ by registrar. If the registrar offers a CNAME flattening, ALIAS, or ANAME record for the root, Render's DNS guidance may allow that instead of the A record. Follow the values shown in the Render dashboard if they differ from these examples.
 
 The build command applies Django migrations to Neon on each deployment; review and commit intended migrations before deploying. After deployment, verify the homepage and `/admin/`. Do not run `loaddata` unless intentionally restoring a fixture; it is not needed for a normal deployment.
