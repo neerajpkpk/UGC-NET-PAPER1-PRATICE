@@ -7,6 +7,7 @@ from django.urls import reverse
 from .models import Subject
 
 BING_SITE_AUTH_FILE = Path(__file__).with_name("BingSiteAuth.xml")
+GOOGLE_SITE_AUTH_FILE = Path(__file__).with_name("google859a58890dd96b2c.html")
 
 
 SUBJECT_INTROS = {
@@ -31,6 +32,13 @@ def bing_site_auth(request):
     return HttpResponse(
         BING_SITE_AUTH_FILE.read_bytes(),
         content_type="application/xml; charset=utf-8",
+    )
+
+
+def google_site_auth(request):
+    return HttpResponse(
+        GOOGLE_SITE_AUTH_FILE.read_bytes(),
+        content_type="text/html; charset=utf-8",
     )
 
 

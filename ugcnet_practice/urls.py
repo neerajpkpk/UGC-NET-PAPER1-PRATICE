@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.urls import include, path
 
 from practice.sitemaps import PracticeSitemap, StaticSitemap, SubjectSitemap
-from practice.views import bing_site_auth, health, robots_txt
+from practice.views import bing_site_auth, google_site_auth, health, robots_txt
 
 sitemaps = {
     "pages": StaticSitemap,
@@ -33,6 +33,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health, name='health'),
     path('BingSiteAuth.xml', bing_site_auth, name='bing_site_auth'),
+    path('google859a58890dd96b2c.html', google_site_auth, name='google_site_auth'),
     path('robots.txt', robots_txt, name='robots_txt'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('', include('practice.urls')),
