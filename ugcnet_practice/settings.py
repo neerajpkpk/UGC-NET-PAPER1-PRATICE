@@ -30,14 +30,20 @@ if not SECRET_KEY:
     else:
         raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DEBUG is False.")
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "DJANGO_ALLOWED_HOSTS",
-        "localhost,127.0.0.1,ugc-net-paper1-pratice.onrender.com,ugcnetprep.me,www.ugcnetprep.me",
-    ).split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = sorted(
+    {
+        "localhost",
+        "127.0.0.1",
+        "ugc-net-paper1-pratice.onrender.com",
+        "ugcnetprep.me",
+        "www.ugcnetprep.me",
+    }
+    | {
+        host.strip()
+        for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+        if host.strip()
+    }
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
