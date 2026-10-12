@@ -20,12 +20,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
-from practice.sitemaps import PracticeSitemap, StaticSitemap, SubjectSitemap
+from practice.sitemaps import (
+    PracticeSitemap,
+    StaticSitemap,
+    SubjectQuestionsSitemap,
+    SubjectSitemap,
+)
 from practice.views import bing_site_auth, google_site_auth, health, robots_txt
 
 sitemaps = {
     "pages": StaticSitemap,
     "subjects": SubjectSitemap,
+    "subject_questions": SubjectQuestionsSitemap,
     "practice": PracticeSitemap,
 }
 

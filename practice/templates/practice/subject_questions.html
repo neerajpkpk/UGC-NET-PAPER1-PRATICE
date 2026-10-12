@@ -1,0 +1,47 @@
+{% extends 'practice/base.html' %}
+
+{% block content %}
+<section class="seo-content-section">
+  <div class="practice-header-row">
+    <div>
+      <span class="eyebrow">UGC NET Paper 1 Question Bank</span>
+      <h1>{{ subject.name }} Questions with Answers</h1>
+      <p>{{ total_questions }} previous year questions with options and explanations.
+        Showing questions {{ page_obj.start_index }}–{{ page_obj.end_index }}.</p>
+    </div>
+    <a href="{% url 'questions_index' %}" class="secondary-btn">All Subjects</a>
+  </div>
+
+  {% for question in questions %}
+    <article class="question-card">
+      <div class="question-meta">
+        <span class="badge">Question {{ forloop.counter }}{% if question.pyq_year %} • {{ question.pyq_year }}{% endif %}{% if question.shift %} • {{ question.shift }} Shift{% endif %}</span>
+        <span class="badge subtle">{{ question.difficulty }}</span>
+      </div>
+      <div class="question-content">{{ question.question_text|safe }}</div>
+      <ol class="option-group">
+        <li><strong>A.</strong> {{ question.option_a|safe }}</li>
+        <li><strong>B.</strong> {{ question.option_b|safe }}</li>
+        <li><strong>C.</strong> {{ question.option_c|safe }}</li>
+        <li><strong>D.</strong> {{ question.option_d|safe }}</li>
+      </ol>
+      <p><strong>Correct answer:</strong> {{ question.correct_answer }}</p>
+      {% if question.explanation %}
+        <p><strong>Explanation:</strong> {{ question.explanation|safe }}</p>
+      {% endif %}
+    </article>
+  {% endfor %}
+
+  {% if page_obj.has_other_pages %}
+    <nav class="practice-actions" aria-label="Question pages">
+      {% if page_obj.has_previous %}
+        <a class="secondary-btn" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a class="primary-btn" href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'practice/base.html' %}
+
+{% block content %}
+<section class="seo-content-section">
+  <span class="eyebrow">Question Bank</span>
+  <h1>All UGC NET Paper 1 Questions</h1>
+  <p>
+    Browse all previous year questions by subject. Each subject page includes
+    every question, its options, correct answer and explanation.
+  </p>
+
+  <div class="practice-grid">
+    {% for subject in subjects %}
+      <article class="practice-card">
+        <h2>{{ subject.name }}</h2>
+        <p>{{ subject.total_questions }} questions with answers and explanations</p>
+        <a href="{% url 'subject_questions' subject.slug %}" class="primary-btn">
+          View All {{ subject.name }} Questions
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -11,10 +11,10 @@ class StaticSitemap(Sitemap):
     protocol = "https"
 
     def items(self):
-        return [None]
+        return ["home", "questions_index"]
 
     def location(self, item):
-        return reverse("home")
+        return reverse(item)
 
 
 class SubjectSitemap(Sitemap):
@@ -31,6 +31,30 @@ class SubjectSitemap(Sitemap):
 
     def location(self, item):
         return reverse("subject_detail", kwargs={"slug": item.slug})
+
+
+class SubjectQuestionsSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.8
+    protocol = "https"
+
+    def items(self):
+        subjects = (
+            Subject.objects.filter(questions__isnull=False)
+            .annotate(question_total=Count("questions", distinct=True))
+            .distinct()
+            .order_by("slug")
+        )
+        return [
+            (subject.slug, page_number)
+            for subject in subjects
+            for page_number in range(1, ceil(subject.question_total / 100) + 1)
+        ]
+
+    def location(self, item):
+        slug, page_number = item
+        url = reverse("subject_questions", kwargs={"slug": slug})
+        return f"{url}?page={page_number}" if page_number > 1 else url
 
 
 class PracticeSitemap(Sitemap):

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from django.core.paginator import Paginator
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -107,6 +108,55 @@ def subject_detail(request, slug):
             "subject_intro": subject_intro,
             "page_title": page_title,
             "page_description": page_description,
+        },
+    )
+
+
+def questions_index(request):
+    subjects = Subject.objects.filter(questions__isnull=False).distinct()
+    return render(
+        request,
+        "practice/questions_index.html",
+        {
+            "subjects": subjects,
+            "page_title": "All UGC NET Paper 1 Questions | Subject-wise PYQs",
+            "page_description": (
+                "Browse all UGC NET Paper 1 previous year questions, options, "
+                "answers and explanations by subject."
+            ),
+        },
+    )
+
+
+def subject_questions(request, slug):
+    subject = Subject.objects.filter(slug=slug).first()
+    if not subject:
+        raise Http404("Subject does not exist.")
+
+    questions = subject.questions.order_by("question_order", "id")
+    paginator = Paginator(questions, 100)
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+    if not page_obj.object_list:
+        raise Http404("No questions exist for this subject.")
+
+    return render(
+        request,
+        "practice/subject_questions.html",
+        {
+            "subject": subject,
+            "questions": page_obj.object_list,
+            "page_obj": page_obj,
+            "total_questions": paginator.count,
+            "canonical_url": request.build_absolute_uri(),
+            "page_title": (
+                f"All {subject.name} Questions with Answers | UGC NET Paper 1"
+            ),
+            "page_description": (
+                f"Read all {subject.total_questions} UGC NET Paper 1 "
+                f"{subject.name} previous year questions with options, answers "
+                "and explanations."
+            ),
         },
     )
 
